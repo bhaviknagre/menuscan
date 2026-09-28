@@ -249,6 +249,7 @@ $("send").addEventListener("click", () => {
   const items = Object.keys(list).map(k => [M.items.find(i => String(i.id) === String(k)), list[k]]).filter(([i, n]) => i && n > 0);
   if (!items.length) return;
   const total = items.reduce((s, [i, n]) => s + n * i.price, 0);
+  const count = items.reduce((s, [, n]) => s + n, 0);
   const name = $("cname").value.trim(), note = $("note").value.trim();
   const now = new Date().toLocaleString("en-IN", {day: "numeric", month: "short", hour: "numeric", minute: "2-digit"});
   const msg = [
@@ -259,7 +260,9 @@ $("send").addEventListener("click", () => {
     "",
     ...items.map(([i, n]) => n + " × " + i.en + (i.veg ? " (veg)" : " (non-veg)") + " – " + rupee(n * i.price)),
     "",
-    "*Total: " + rupee(total) + "*",
+    "------------------------------",
+    "*Total items:* " + count,
+    "*Total price: " + rupee(total) + "*",
     note ? "\n*Note:* " + note : null,
     "\n_Sent from MenuScan_"
   ].filter(x => x !== null).join("\n");
