@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Mukta:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F1; --surface:#FFFFFF; --ink:#1D2B22; --muted:#5E6B62; --line:#DDE3DA;
+  --leaf:#2F5D3A; --turmeric:#E3A21A; --veg:#1E8E3E; --nonveg:#B3261E; --chip:#E9EEE6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121A15; --surface:#1A241E; --ink:#EAF0E8; --muted:#9FB0A4; --line:#2C3A31;
+    --leaf:#7FBF8C; --turmeric:#F0B83A; --veg:#4CC26A; --nonveg:#F2766D; --chip:#23302A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121A15; --surface:#1A241E; --ink:#EAF0E8; --muted:#9FB0A4; --line:#2C3A31;
+  --leaf:#7FBF8C; --turmeric:#F0B83A; --veg:#4CC26A; --nonveg:#F2766D; --chip:#23302A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Mukta",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.45}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 120px}
+header.top{padding:28px 0 18px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.brand{font-family:"Yatra One","Mukta",serif;font-size:clamp(2rem,9vw,2.8rem);line-height:1;color:var(--leaf);margin:0}
+.sub{color:var(--muted);margin:6px 0 0;font-size:.95rem}
+.table{background:var(--turmeric);color:#1D2B22;font-weight:700;border-radius:999px;padding:6px 14px;white-space:nowrap;font-size:.95rem}
+.lang{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:.9rem;cursor:pointer}
+.sticky{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:10px 0 8px;border-bottom:1px solid var(--line)}
+.row{display:flex;gap:10px;align-items:center}
+.search{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 14px;font:inherit;min-width:0}
+.vegtoggle{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 12px;cursor:pointer;color:var(--ink);font:inherit;white-space:nowrap}
+.vegtoggle[aria-pressed="true"]{border-color:var(--veg);background:color-mix(in srgb,var(--veg) 12%,var(--surface))}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-top:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:0;background:var(--chip);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:.92rem;cursor:pointer}
+.chip.on{background:var(--leaf);color:var(--bg)}
+section h2{font-family:"Yatra One","Mukta",serif;font-weight:400;font-size:1.5rem;color:var(--leaf);margin:28px 0 4px}
+.item{display:grid;grid-template-columns:18px 1fr auto;gap:4px 12px;padding:16px 0;border-bottom:1px dashed var(--line)}
+.mark{width:16px;height:16px;border:2px solid currentColor;border-radius:3px;display:grid;place-items:center;margin-top:5px}
+.mark::after{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.mark.nv::after{border-radius:0;width:0;height:0;background:none;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:8px solid currentColor}
+.veg{color:var(--veg)}.nv{color:var(--nonveg)}
+.name{font-weight:700;font-size:1.08rem}
+.alt{color:var(--muted);font-size:.92rem}
+.desc{color:var(--muted);font-size:.93rem;margin-top:2px}
+.tag{display:inline-block;font-size:.8rem;color:#1D2B22;background:var(--turmeric);border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:2px}
+.right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.price{font-weight:700;font-size:1.05rem}
+.add{border:1.5px solid var(--leaf);color:var(--leaf);background:var(--surface);border-radius:10px;padding:4px 14px;font:inherit;font-weight:700;cursor:pointer}
+.qty{display:flex;align-items:center;border:1.5px solid var(--leaf);border-radius:10px;overflow:hidden}
+.qty button{border:0;background:var(--leaf);color:var(--bg);width:30px;height:30px;font:inherit;font-weight:700;cursor:pointer}
+.qty span{min-width:30px;text-align:center;font-weight:700}
+.off{opacity:.5}
+.off .right .note{font-size:.85rem;color:var(--nonveg)}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+button:focus-visible,input:focus-visible{outline:3px solid var(--turmeric);outline-offset:2px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--leaf);color:var(--bg);display:none;z-index:10}
+.bar.show{display:block}
+.bar button{width:100%;max-width:608px;margin:0 auto;display:flex;justify-content:space-between;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20;align-items:flex-end;justify-content:center}
+.sheet.show{display:flex}
+.panel{background:var(--surface);color:var(--ink);width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));max-height:85%;overflow:auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}}
+.panel h3{font-family:"Yatra One","Mukta",serif;font-weight:400;font-size:1.6rem;margin:0 0 4px;color:var(--leaf)}
+.panel .hint{color:var(--muted);margin:0 0 14px}
+.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:1.2rem}
+.total{display:flex;justify-content:space-between;padding:14px 0;font-weight:700;font-size:1.25rem}
+.actions{display:flex;gap:10px;margin-top:6px}
+.actions button{flex:1;border-radius:12px;padding:12px;font:inherit;font-weight:700;cursor:pointer}
+.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.solid{background:var(--leaf);color:var(--bg);border:0}
+footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:36px}
+</style>
+</head>
+<body>
+<!--
+  MenuScan - one page serves every restaurant.
+  URL format:  index.html?r=<restaurant-id>&table=<table-number>
+  Example:     index.html?r=kesar-rasoi&table=7
+  The restaurant's menu is loaded from  menus/<restaurant-id>.js
+-->
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1 class="brand" id="brand">Loading…</h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="right" style="gap:8px">
+      <span class="table" id="tbl"></span>
+      <button class="lang" id="lang">हिंदी</button>
+    </div>
+  </header>
+
+  <div class="sticky">
+    <div class="row">
+      <input class="search" id="q" type="search" placeholder="Search dishes" aria-label="Search dishes">
+      <button class="vegtoggle" id="veg" aria-pressed="false"><span class="mark veg"></span><span id="vegLbl">Veg only</span></button>
+    </div>
+    <nav class="chips" id="chips"></nav>
+  </div>
+
+  <main id="menu"></main>
+  <footer id="foot"></footer>
+</div>
+
+<div class="bar" id="bar"><button id="openList"><span id="barCount"></span><span id="barTotal"></span></button></div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="panel">
+    <h3 id="sheetTitle"></h3>
+    <p class="hint" id="sheetHint"></p>
+    <div id="lines"></div>
+    <div class="total"><span id="totLbl"></span><span id="tot"></span></div>
+    <div class="actions">
+      <button class="ghost" id="clear"></button>
+      <button class="solid" id="close"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- Interface text (English / Hindi) ----------
+const T = {
+  en:{search:"Search dishes",veg:"Veg only",add:"Add",na:"Not available today",
+      items:n=>n+(n===1?" item":" items"),show:"Show to waiter",title:"My order list",hint:"Show this screen to your waiter to place the order.",
+      total:"Total",clear:"Clear list",back:"Back to menu",empty:"No dishes match your search.",foot:"Prices include GST · Menu by MenuScan",table:"Table",spicy:"Spicy",chef:"Chef's pick",lang:"हिंदी",
+      notfound:"Menu not found. Please ask the staff for help."},
+  hi:{search:"व्यंजन खोजें",veg:"केवल शाकाहारी",add:"जोड़ें",na:"आज उपलब्ध नहीं",
+      items:n=>n+" आइटम",show:"वेटर को दिखाएँ",title:"मेरी ऑर्डर सूची",hint:"ऑर्डर देने के लिए यह स्क्रीन वेटर को दिखाएँ।",
+      total:"कुल",clear:"सूची साफ़ करें",back:"मेनू पर वापस",empty:"कोई व्यंजन नहीं मिला।",foot:"कीमतों में GST शामिल · MenuScan",table:"टेबल",spicy:"तीखा",chef:"शेफ़ की पसंद",lang:"English",
+      notfound:"मेनू नहीं मिला। कृपया स्टाफ़ से संपर्क करें।"}
+};
+
+// ---------- Read restaurant + table from the QR link ----------
+const params = new URLSearchParams(location.search);
+const slug = (params.get("r") || "kesar-rasoi").toLowerCase().replace(/[^a-z0-9-]/g, "");
+const table = (params.get("table") || "").replace(/[^A-Za-z0-9-]/g, "");
+const storeKey = "menuList:" + slug;
+const $ = id => document.getElementById(id);
+const rupee = n => "₹" + n.toLocaleString("en-IN");
+
+let M = null, lang = "en", vegOnly = false, q = "", list = {};
+try { list = JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; } catch (e) { list = {}; }
+const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(list)); } catch (e) {} };
+
+// ---------- Load this restaurant's menu file ----------
+const s = document.createElement("script");
+s.src = "menus/" + slug + ".js";
+s.onload = () => { M = window.MENU; document.title = M.name + " – Menu"; render(); };
+s.onerror = () => { $("brand").textContent = "MenuScan"; $("menu").innerHTML = '<p class="empty">' + T.en.notfound + "<br>" + T.hi.notfound + "</p>"; };
+document.head.appendChild(s);
+
+function render(){
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  $("brand").textContent = M.name;
+  $("sub").textContent = (M.tagline && M.tagline[lang]) || "";
+  $("q").placeholder = t.search; $("vegLbl").textContent = t.veg;
+  $("lang").textContent = t.lang; $("foot").textContent = t.foot;
+  $("tbl").textContent = table ? t.table + " " + table : "";
+  $("tbl").style.display = table ? "" : "none";
+  $("sheetTitle").textContent = t.title; $("sheetHint").textContent = t.hint; $("totLbl").textContent = t.total;
+  $("clear").textContent = t.clear; $("close").textContent = t.back;
+
+  const ql = q.trim().toLowerCase();
+  const shown = M.items.filter(i => (!vegOnly || i.veg) && (!ql || i.en.toLowerCase().includes(ql) || (i.hi||"").includes(q.trim())));
+  const cats = M.categories.filter(c => shown.some(i => i.cat === c.id));
+
+  $("chips").innerHTML = cats.map(c => `<button class="chip" data-c="${c.id}">${c[lang] || c.en}</button>`).join("");
+  $("menu").innerHTML = cats.length ? cats.map(c => `<section id="s-${c.id}"><h2>${c[lang] || c.en}</h2>` +
+    shown.filter(i => i.cat === c.id).map(i => {
+      const n = list[i.id] || 0;
+      const main = lang === "en" ? i.en : (i.hi || i.en);
+      const alt  = lang === "en" ? (i.hi || "") : i.en;
+      const tag = i.tag ? `<span class="tag">${t[i.tag] || i.tag}</span>` : "";
+      const ctl = !i.available ? `<span class="note">${t.na}</span>`
+        : n ? `<div class="qty"><button data-m="${i.id}" aria-label="Remove one">−</button><span>${n}</span><button data-p="${i.id}" aria-label="Add one">+</button></div>`
+        : `<button class="add" data-p="${i.id}">${t.add}</button>`;
+      return `<div class="item${!i.available ? " off" : ""}"><span class="mark ${i.veg ? "veg" : "nv"}" aria-label="${i.veg ? "Veg" : "Non-veg"}"></span>
+        <div><div class="name">${main}${tag}</div><div class="alt">${alt}</div><div class="desc">${i.desc || ""}</div></div>
+        <div class="right"><span class="price">${rupee(i.price)}</span>${ctl}</div></div>`;
+    }).join("") + `</section>`).join("") : `<p class="empty">${t.empty}</p>`;
+
+  const find = k => M.items.find(i => String(i.id) === String(k));
+  const ids = Object.keys(list).filter(k => list[k] > 0 && find(k));
+  const count = ids.reduce((s, k) => s + list[k], 0);
+  const total = ids.reduce((s, k) => s + list[k] * find(k).price, 0);
+  $("bar").classList.toggle("show", count > 0);
+  $("barCount").textContent = t.items(count) + " · " + rupee(total);
+  $("barTotal").textContent = t.show;
+  $("lines").innerHTML = ids.map(k => { const i = find(k); return `<div class="line"><span>${list[k]} × ${lang==="en"?i.en:(i.hi||i.en)}</span><span>${rupee(list[k]*i.price)}</span></div>`; }).join("");
+  $("tot").textContent = rupee(total);
+}
+
+document.addEventListener("click", e => {
+  if (!M) return;
+  const p = e.target.closest("[data-p]"), m = e.target.closest("[data-m]"), c = e.target.closest("[data-c]");
+  if (p) { list[p.dataset.p] = (list[p.dataset.p] || 0) + 1; save(); render(); }
+  if (m) { list[m.dataset.m] = Math.max(0, (list[m.dataset.m] || 0) - 1); if (!list[m.dataset.m]) delete list[m.dataset.m]; save(); render(); }
+  if (c) { document.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === c));
+           const el = $("s-" + c.dataset.c); if (el) el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
+});
+$("q").addEventListener("input", e => { q = e.target.value; if (M) render(); });
+$("veg").addEventListener("click", () => { vegOnly = !vegOnly; $("veg").setAttribute("aria-pressed", vegOnly); if (M) render(); });
+$("lang").addEventListener("click", () => { lang = lang === "en" ? "hi" : "en"; if (M) render(); });
+$("openList").addEventListener("click", () => $("sheet").classList.add("show"));
+$("close").addEventListener("click", () => $("sheet").classList.remove("show"));
+$("sheet").addEventListener("click", e => { if (e.target === $("sheet")) $("sheet").classList.remove("show"); });
+$("clear").addEventListener("click", () => { list = {}; save(); $("sheet").classList.remove("show"); render(); });
+</script>
+</body>
+</html>
