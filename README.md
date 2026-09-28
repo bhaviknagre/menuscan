@@ -14,6 +14,19 @@ on WhatsApp with one tap (table number, items, total and notes included).
     qr-generator.html   Makes printable QR codes for each table
     README.md           This guide
 
+## Ordering in rounds and closing the table
+
+- Customers can order more than once. Each WhatsApp message contains only the
+  NEW items, labelled "Round 1 – new order", "Round 2 – additional order", etc.,
+  plus the table total so far.
+- After coming back from WhatsApp the page asks "Did your order go through?".
+  Only "Yes, sent" moves the items into "Already ordered".
+- "Request the bill" sends a bill request on WhatsApp. "Done? Close my table"
+  clears the order on the phone.
+- A table's order is forgotten automatically after 4 hours without use
+  (`SESSION_HOURS` at the top of the script in `index.html`), or when the
+  customer scans a different table's QR code after ordering.
+
 ## How the links work
 
 Every QR code points to the same page with two details in the link:

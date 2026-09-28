@@ -91,6 +91,31 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:36px}
 .fab svg{width:30px;height:30px}
 body.has-bar .fab{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 body.has-bar .wrap{padding-bottom:160px}
+[hidden]{display:none!important}
+/* ----- Order sheet: rounds, totals, reminder ----- */
+.pendnote{background:color-mix(in srgb,var(--turmeric) 18%,var(--surface));border:1px solid var(--turmeric);border-radius:12px;padding:12px;margin-bottom:16px;font-weight:700}
+.sec{margin-top:18px;padding-top:12px;border-top:2px solid var(--line)}
+.sec h4{margin:0 0 4px;font-size:1.1rem}
+.round h5{margin:14px 0 2px;font-size:.95rem;color:var(--muted);font-weight:700}
+.oline{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.oline .p{color:var(--muted);white-space:nowrap}
+.again{border:1.5px solid var(--leaf);color:var(--leaf);background:var(--surface);border-radius:10px;padding:6px 12px;min-height:40px;font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.oline .na{font-size:.85rem;color:var(--nonveg);white-space:nowrap}
+.estimate{color:var(--muted);font-size:.85rem;margin:-8px 0 0}
+.linkbtn{display:block;width:100%;min-height:44px;background:none;border:0;color:var(--leaf);font:inherit;font-size:.95rem;font-weight:700;text-decoration:underline;cursor:pointer}
+.closelink{color:var(--nonveg);margin-top:12px}
+.badge{display:inline-block;font-size:.8rem;font-weight:700;color:var(--leaf);background:var(--chip);border-radius:6px;padding:1px 8px;margin-top:4px}
+/* ----- Pop-up dialog, thank-you screen, toast ----- */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30}
+.box{background:var(--surface);color:var(--ink);border-radius:16px;padding:22px 20px;width:100%;max-width:420px}
+.box h3{margin:0 0 6px;font-size:1.3rem;line-height:1.3}
+.box p{margin:0 0 16px;color:var(--muted)}
+.danger{background:var(--nonveg);color:#fff;border:0}
+.thanks{position:fixed;inset:0;background:var(--bg);color:var(--ink);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.thanks h2{font-family:"Yatra One","Mukta",serif;font-weight:400;color:var(--leaf);font-size:clamp(1.8rem,8vw,2.4rem);margin:0;line-height:1.2}
+.thanks p{color:var(--muted);margin:0 0 10px}
+.thanks button{border-radius:12px;padding:14px 28px;font:inherit;font-weight:700;font-size:1.1rem;cursor:pointer}
+.toast{position:fixed;left:16px;right:16px;top:calc(16px + env(safe-area-inset-top,0px));max-width:480px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 16px;text-align:center;z-index:25;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 </style>
 </head>
 <body>
@@ -128,59 +153,179 @@ body.has-bar .wrap{padding-bottom:160px}
 
 <div class="bar" id="bar"><button id="openList"><span id="barCount"></span><span id="barTotal"></span></button></div>
 
-<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+<!-- Order sheet: new items at the top, earlier rounds below -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="newTitle">
   <div class="panel">
-    <h3 id="sheetTitle"></h3>
+    <!-- Reminder if the customer went to WhatsApp but never answered "did it send?" -->
+    <div class="pendnote" id="pendNote" hidden>
+      <div id="pendQ"></div>
+      <div class="actions"><button class="ghost" id="pendNo"></button><button class="solid" id="pendYes"></button></div>
+    </div>
+
+    <h3 id="newTitle"></h3>
     <p class="hint" id="sheetHint"></p>
     <div id="lines"></div>
-    <div class="total"><span id="totLbl"></span><span id="tot"></span></div>
-    <label class="field" for="cname" id="nameLbl"></label>
-    <input id="cname" type="text" autocomplete="name" maxlength="40">
-    <label class="field" for="note" id="noteLbl"></label>
-    <textarea id="note" maxlength="200"></textarea>
-    <button class="send wa" id="send"><svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.3.6 4.5 1.8 6.5L3 29l6.9-1.8c1.9 1 4 1.6 6.1 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.1 1.1-4-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 9.9 10.1 5.2 16 5.2s10.7 4.7 10.7 10.6S21.9 26.5 16 26.5zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.7 1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg><span id="sendLbl"></span></button>
+    <div id="newBox">
+      <div class="total"><span id="subLbl"></span><span id="newSub"></span></div>
+      <label class="field" for="cname" id="nameLbl"></label>
+      <input id="cname" type="text" autocomplete="name" maxlength="40">
+      <label class="field" for="note" id="noteLbl"></label>
+      <textarea id="note" maxlength="200"></textarea>
+      <button class="send wa" id="send"><svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.3.6 4.5 1.8 6.5L3 29l6.9-1.8c1.9 1 4 1.6 6.1 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.1 1.1-4-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 9.9 10.1 5.2 16 5.2s10.7 4.7 10.7 10.6S21.9 26.5 16 26.5zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.7 1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg><span id="sendLbl"></span></button>
+      <button class="send solid" id="taken" hidden></button>
+      <button class="linkbtn" id="markSent"></button>
+    </div>
+
+    <div class="sec" id="roundsSec" hidden>
+      <h4 id="alreadyLbl"></h4>
+      <div id="rounds"></div>
+    </div>
+
+    <div class="sec">
+      <div class="total"><span id="soFarLbl"></span><span id="soFar"></span></div>
+      <p class="estimate" id="estimate"></p>
+    </div>
+
+    <button class="send wa" id="bill" hidden><svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.3.6 4.5 1.8 6.5L3 29l6.9-1.8c1.9 1 4 1.6 6.1 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.1 1.1-4-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 9.9 10.1 5.2 16 5.2s10.7 4.7 10.7 10.6S21.9 26.5 16 26.5zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.7 1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg><span id="billLbl"></span></button>
     <div class="actions">
       <button class="ghost" id="clear"></button>
       <button class="solid" id="close"></button>
     </div>
+    <button class="linkbtn closelink" id="closeTable"></button>
   </div>
 </div>
 
+<!-- Small pop-up used for "Did it send?" and "Close table?" -->
+<div class="modal" id="modal" role="alertdialog" aria-modal="true" aria-labelledby="mTitle" hidden>
+  <div class="box">
+    <h3 id="mTitle"></h3>
+    <p id="mText"></p>
+    <div class="actions"><button class="ghost" id="mNo"></button><button class="solid" id="mYes"></button></div>
+  </div>
+</div>
+
+<!-- Thank-you screen after closing the table -->
+<div class="thanks" id="thanks" hidden>
+  <h2 id="thanksTitle"></h2>
+  <p id="thanksText"></p>
+  <button class="solid" id="startNew"></button>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
 <script>
+// ---------- Settings you may want to change ----------
+const SESSION_HOURS = 4;            // a table's order is forgotten after this many hours without any change
+// Default WhatsApp number that receives orders. A restaurant can override it
+// with  whatsapp: "91XXXXXXXXXX"  in its menus/<id>.js file (digits only, with country code).
+// If this is "" and the restaurant has no number, customers see "Show this to your waiter" instead.
+const DEFAULT_WA = "918459569923";
+
 // ---------- Interface text (English / Hindi) ----------
 const T = {
   en:{search:"Search dishes",veg:"Veg only",add:"Add",na:"Not available today",
-      items:n=>n+(n===1?" item":" items"),show:"Review & send order",title:"Your order",hint:"Check your items, then send the order to the restaurant on WhatsApp.",
-      send:"Send order on WhatsApp",name:"Your name (optional)",note:"Note for the kitchen (optional)",notePh:"e.g. less spicy, no onion",
-      total:"Total",clear:"Clear list",back:"Back to menu",empty:"No dishes match your search.",foot:"Prices include GST · Menu by MenuScan",table:"Table",spicy:"Spicy",chef:"Chef's pick",lang:"हिंदी",
-      notfound:"Menu not found. Please ask the staff for help."},
+      empty:"No dishes match your search.",foot:"Prices include GST · Menu by MenuScan",table:"Table",spicy:"Spicy",chef:"Chef's pick",lang:"हिंदी",
+      notfound:"Menu not found. Please ask the staff for help.",
+      // order sheet + bottom bar
+      newItems:n=>n+(n===1?" new item":" new items"),newOrder:"New items",roundN:n=>"Round "+n,
+      hintWa:"Send these new items to the restaurant on WhatsApp.",hintWaiter:"Show this screen to your waiter to place the order.",
+      noNew:"No new items yet. Add dishes from the menu to order more.",subtotal:"Subtotal",
+      send:"Send order on WhatsApp",sendShort:"Send order",name:"Your name (optional)",note:"Note for the kitchen (optional)",notePh:"e.g. less spicy, no onion",
+      markSent:"Ordered with the waiter instead? Mark as sent",taken:"Waiter has taken this order",
+      already:"Already ordered",again:"Add again",roundAt:(n,tm)=>"Round "+n+" · "+tm,
+      soFar:"Total so far",estimate:"Estimate only. Your final bill comes from the restaurant.",
+      ordered:"Ordered",view:"View my order",badge:n=>"Ordered ×"+n,clear:"Clear new items",back:"Back to menu",
+      // bill + closing the table
+      bill:"Request the bill",closeTable:"Done? Close my table",
+      askOrder:"Did your order go through on WhatsApp?",askOrderText:"Tap “Yes” only if you pressed send in WhatsApp.",yesSent:"Yes, sent",notSent:"No, not sent",
+      askBill:"Did the bill request go through?",askBillText:"If yes, your table will be closed on this phone.",yes:"Yes",no:"No",
+      pendOrder:"Did you send your last order?",pendBill:"Did your bill request go through?",
+      closeQ:"Close your table?",closeText:"This clears your order on this phone. Please make sure you've asked for your bill.",cancel:"Cancel",closeYes:"Close table",
+      sentToast:"Order sent! You can order more anytime.",
+      thanks:n=>"Thank you for dining at "+n+"!",thanksText:"Your order on this phone has been cleared.",startNew:"Start a new order"},
   hi:{search:"व्यंजन खोजें",veg:"केवल शाकाहारी",add:"जोड़ें",na:"आज उपलब्ध नहीं",
-      items:n=>n+" आइटम",show:"देखें और ऑर्डर भेजें",title:"आपका ऑर्डर",hint:"अपने आइटम जाँचें, फिर WhatsApp पर रेस्टोरेंट को ऑर्डर भेजें।",
-      send:"WhatsApp पर ऑर्डर भेजें",name:"आपका नाम (वैकल्पिक)",note:"किचन के लिए नोट (वैकल्पिक)",notePh:"जैसे कम तीखा, बिना प्याज़",
-      total:"कुल",clear:"सूची साफ़ करें",back:"मेनू पर वापस",empty:"कोई व्यंजन नहीं मिला।",foot:"कीमतों में GST शामिल · MenuScan",table:"टेबल",spicy:"तीखा",chef:"शेफ़ की पसंद",lang:"English",
-      notfound:"मेनू नहीं मिला। कृपया स्टाफ़ से संपर्क करें।"}
+      empty:"कोई व्यंजन नहीं मिला।",foot:"कीमतों में GST शामिल · MenuScan",table:"टेबल",spicy:"तीखा",chef:"शेफ़ की पसंद",lang:"English",
+      notfound:"मेनू नहीं मिला। कृपया स्टाफ़ से संपर्क करें।",
+      newItems:n=>n+" नए आइटम",newOrder:"नए आइटम",roundN:n=>"राउंड "+n,
+      hintWa:"ये नए आइटम WhatsApp पर रेस्टोरेंट को भेजें।",hintWaiter:"ऑर्डर देने के लिए यह स्क्रीन वेटर को दिखाएँ।",
+      noNew:"अभी कोई नया आइटम नहीं। और ऑर्डर करने के लिए मेनू से व्यंजन जोड़ें।",subtotal:"उप-योग",
+      send:"WhatsApp पर ऑर्डर भेजें",sendShort:"ऑर्डर भेजें",name:"आपका नाम (वैकल्पिक)",note:"किचन के लिए नोट (वैकल्पिक)",notePh:"जैसे कम तीखा, बिना प्याज़",
+      markSent:"वेटर को ऑर्डर दे दिया? भेजा हुआ मानें",taken:"वेटर ने यह ऑर्डर ले लिया",
+      already:"पहले से ऑर्डर किया",again:"फिर से जोड़ें",roundAt:(n,tm)=>"राउंड "+n+" · "+tm,
+      soFar:"अब तक कुल",estimate:"यह केवल अनुमान है। आपका फ़ाइनल बिल रेस्टोरेंट से आएगा।",
+      ordered:"ऑर्डर हो गया",view:"मेरा ऑर्डर देखें",badge:n=>"ऑर्डर किया ×"+n,clear:"नए आइटम हटाएँ",back:"मेनू पर वापस",
+      bill:"बिल मँगवाएँ",closeTable:"हो गया? मेरी टेबल बंद करें",
+      askOrder:"क्या आपका ऑर्डर WhatsApp पर चला गया?",askOrderText:"“हाँ” तभी दबाएँ जब आपने WhatsApp में भेजें दबाया हो।",yesSent:"हाँ, भेज दिया",notSent:"नहीं, नहीं भेजा",
+      askBill:"क्या बिल का अनुरोध चला गया?",askBillText:"अगर हाँ, तो इस फ़ोन पर आपकी टेबल बंद कर दी जाएगी।",yes:"हाँ",no:"नहीं",
+      pendOrder:"क्या आपने अपना पिछला ऑर्डर भेजा था?",pendBill:"क्या बिल का अनुरोध चला गया?",
+      closeQ:"अपनी टेबल बंद करें?",closeText:"इससे इस फ़ोन पर आपका ऑर्डर साफ़ हो जाएगा। कृपया पक्का करें कि आपने बिल माँग लिया है।",cancel:"रद्द करें",closeYes:"टेबल बंद करें",
+      sentToast:"ऑर्डर भेज दिया! आप कभी भी और ऑर्डर कर सकते हैं।",
+      thanks:n=>n+" में पधारने के लिए धन्यवाद!",thanksText:"इस फ़ोन पर आपका ऑर्डर साफ़ कर दिया गया है।",startNew:"नया ऑर्डर शुरू करें"}
 };
 
 // ---------- Read restaurant + table from the QR link ----------
 const params = new URLSearchParams(location.search);
 const slug = (params.get("r") || "kesar-rasoi").toLowerCase().replace(/[^a-z0-9-]/g, "");
 const table = (params.get("table") || "").replace(/[^A-Za-z0-9-]/g, "");
-const storeKey = "menuList:" + slug;
 const $ = id => document.getElementById(id);
 const rupee = n => "₹" + n.toLocaleString("en-IN");
-// Default WhatsApp number that receives orders. A restaurant can override it
-// with  whatsapp: "91XXXXXXXXXX"  in its menus/<id>.js file (digits only, with country code).
-const DEFAULT_WA = "918459569923";
+const now = () => Date.now();
 const waNumber = () => String((M && M.whatsapp) || DEFAULT_WA).replace(/\D/g, "");
 
-let M = null, lang = "en", vegOnly = false, q = "", list = {};
-try { list = JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; } catch (e) { list = {}; }
-const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(list)); } catch (e) {} };
+let M = null, lang = "en", vegOnly = false, q = "";
+
+// ---------- Table session (saved on this phone) ----------
+// One session per restaurant, saved under "menuSession:<restaurant-id>":
+//   current: new items not sent yet        {itemId: qty}
+//   rounds:  orders already sent           [{at: time, items: {itemId: qty}}]
+//   pending: a WhatsApp message we opened but the customer hasn't confirmed yet
+const sessionKey = "menuSession:" + slug;
+const oldKey = "menuList:" + slug;          // the old single list, from before rounds existed
+const expired = s => now() - (s.lastActive || 0) > SESSION_HOURS * 3600000;
+const newSession = () => ({ table, startedAt: now(), lastActive: now(), current: {}, rounds: [], name: "", pending: null });
+
+function loadSession(){
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(sessionKey)); } catch (e) {}
+  // Missing or damaged → start clean
+  if (!s || typeof s !== "object" || !s.current || typeof s.current !== "object" || !Array.isArray(s.rounds)) s = newSession();
+  // Auto-close: nobody touched it for SESSION_HOURS
+  if (expired(s)) s = newSession();
+  // Auto-close: a different table with earlier orders means this is a new visit
+  if ((s.table || "") !== table && s.rounds.length) s = newSession();
+  s.table = table;
+  // Move the old saved list (menuList:<id>) into "current", then delete the old key
+  let old = null;
+  try { old = JSON.parse(localStorage.getItem(oldKey)); } catch (e) {}
+  if (old && typeof old === "object") for (const k in old) if (old[k] > 0) s.current[k] = (s.current[k] || 0) + old[k];
+  try { localStorage.removeItem(oldKey); } catch (e) {}
+  return s;
+}
+let S = loadSession();
+const store = () => { try { localStorage.setItem(sessionKey, JSON.stringify(S)); } catch (e) {} };
+const save = () => { S.lastActive = now(); store(); };   // call after every change
+store();
+
+// ---------- Small helpers for orders ----------
+const find = k => M.items.find(i => String(i.id) === String(k));
+// {itemId: qty}  →  [[dish, qty], ...]  (skips dishes no longer on the menu)
+const linesOf = obj => Object.keys(obj || {}).map(k => [find(k), obj[k]]).filter(([i, n]) => i && n > 0);
+const sumOf = ls => ls.reduce((a, [i, n]) => a + n * i.price, 0);
+const countOf = ls => ls.reduce((a, [, n]) => a + n, 0);
+const sentLines = () => S.rounds.flatMap(r => linesOf(r.items));
+const orderedQty = id => S.rounds.reduce((a, r) => a + ((r.items || {})[id] || 0), 0);
+const nameOf = i => lang === "en" ? i.en : (i.hi || i.en);
+const timeOf = ts => new Date(ts).toLocaleTimeString("en-IN", {hour: "numeric", minute: "2-digit"});
 
 // ---------- Load this restaurant's menu file ----------
 const s = document.createElement("script");
 s.src = "menus/" + slug + ".js";
-s.onload = () => { M = window.MENU; document.title = M.name + " – Menu"; $("fab").href = "https://wa.me/" + waNumber(); render(); };
+s.onload = () => {
+  M = window.MENU; document.title = M.name + " – Menu";
+  $("fab").href = "https://wa.me/" + waNumber(); $("fab").hidden = !waNumber();
+  $("cname").value = S.name || "";
+  render(); onReturn();
+};
 s.onerror = () => { $("brand").textContent = "MenuScan"; $("menu").innerHTML = '<p class="empty">' + T.en.notfound + "<br>" + T.hi.notfound + "</p>"; };
 document.head.appendChild(s);
 
@@ -193,9 +338,6 @@ function render(){
   $("lang").textContent = t.lang; $("foot").textContent = t.foot;
   $("tbl").textContent = table ? t.table + " " + table : "";
   $("tbl").style.display = table ? "" : "none";
-  $("sheetTitle").textContent = t.title; $("sheetHint").textContent = t.hint; $("totLbl").textContent = t.total;
-  $("clear").textContent = t.clear; $("close").textContent = t.back;
-  $("nameLbl").textContent = t.name; $("noteLbl").textContent = t.note; $("note").placeholder = t.notePh; $("sendLbl").textContent = t.send;
 
   const ql = q.trim().toLowerCase();
   const shown = M.items.filter(i => (!vegOnly || i.veg) && (!ql || i.en.toLowerCase().includes(ql) || (i.hi||"").includes(q.trim())));
@@ -204,71 +346,200 @@ function render(){
   $("chips").innerHTML = cats.map(c => `<button class="chip" data-c="${c.id}">${c[lang] || c.en}</button>`).join("");
   $("menu").innerHTML = cats.length ? cats.map(c => `<section id="s-${c.id}"><h2>${c[lang] || c.en}</h2>` +
     shown.filter(i => i.cat === c.id).map(i => {
-      const n = list[i.id] || 0;
-      const main = lang === "en" ? i.en : (i.hi || i.en);
+      const n = S.current[i.id] || 0, done = orderedQty(i.id);
+      const main = nameOf(i);
       const alt  = lang === "en" ? (i.hi || "") : i.en;
       const tag = i.tag ? `<span class="tag">${t[i.tag] || i.tag}</span>` : "";
+      const badge = done ? `<span class="badge">${t.badge(done)}</span>` : "";
       const ctl = !i.available ? `<span class="note">${t.na}</span>`
         : n ? `<div class="qty"><button data-m="${i.id}" aria-label="Remove one">−</button><span>${n}</span><button data-p="${i.id}" aria-label="Add one">+</button></div>`
         : `<button class="add" data-p="${i.id}">${t.add}</button>`;
       return `<div class="item${!i.available ? " off" : ""}"><span class="mark ${i.veg ? "veg" : "nv"}" aria-label="${i.veg ? "Veg" : "Non-veg"}"></span>
-        <div><div class="name">${main}${tag}</div><div class="alt">${alt}</div><div class="desc">${i.desc || ""}</div></div>
+        <div><div class="name">${main}${tag}</div><div class="alt">${alt}</div><div class="desc">${i.desc || ""}</div>${badge}</div>
         <div class="right"><span class="price">${rupee(i.price)}</span>${ctl}</div></div>`;
     }).join("") + `</section>`).join("") : `<p class="empty">${t.empty}</p>`;
 
-  const find = k => M.items.find(i => String(i.id) === String(k));
-  const ids = Object.keys(list).filter(k => list[k] > 0 && find(k));
-  const count = ids.reduce((s, k) => s + list[k], 0);
-  const total = ids.reduce((s, k) => s + list[k] * find(k).price, 0);
-  $("bar").classList.toggle("show", count > 0);
-  document.body.classList.toggle("has-bar", count > 0);
-  $("send").disabled = count === 0;
-  $("barCount").textContent = t.items(count) + " · " + rupee(total);
-  $("barTotal").textContent = t.show;
-  $("lines").innerHTML = ids.map(k => { const i = find(k); return `<div class="line"><span>${list[k]} × ${lang==="en"?i.en:(i.hi||i.en)}</span><span>${rupee(list[k]*i.price)}</span></div>`; }).join("");
-  $("tot").textContent = rupee(total);
+  renderBar(); renderSheet();
 }
 
+// Bottom bar: "3 new items · ₹540 | Send order"  or  "Ordered · ₹1,240 | View my order"
+function renderBar(){
+  const t = T[lang], cur = linesOf(S.current), hasNew = cur.length > 0;
+  const show = hasNew || S.rounds.length > 0;
+  $("bar").classList.toggle("show", show);
+  document.body.classList.toggle("has-bar", show);
+  $("barCount").textContent = hasNew ? t.newItems(countOf(cur)) + " · " + rupee(sumOf(cur)) : t.ordered + " · " + rupee(sumOf(sentLines()));
+  $("barTotal").textContent = hasNew ? (waNumber() ? t.sendShort : t.view) : t.view;
+  if (!show) $("sheet").classList.remove("show");
+}
+
+function renderSheet(){
+  const t = T[lang], cur = linesOf(S.current), hasWa = !!waNumber();
+  // Waiting for "did it send?" → show a reminder at the top
+  $("pendNote").hidden = !S.pending;
+  if (S.pending) {
+    const bill = S.pending.type === "bill";
+    $("pendQ").textContent = bill ? t.pendBill : t.pendOrder;
+    $("pendYes").textContent = bill ? t.yes : t.yesSent; $("pendNo").textContent = bill ? t.no : t.notSent;
+  }
+  // New items (this round)
+  $("newTitle").textContent = t.newOrder + (S.rounds.length ? " · " + t.roundN(S.rounds.length + 1) : "");
+  $("sheetHint").textContent = cur.length ? (hasWa ? t.hintWa : t.hintWaiter) : t.noNew;
+  $("lines").innerHTML = cur.map(([i, n]) => `<div class="line"><span>${n} × ${nameOf(i)}</span><span>${rupee(n * i.price)}</span></div>`).join("");
+  $("newBox").hidden = !cur.length;
+  $("subLbl").textContent = t.subtotal; $("newSub").textContent = rupee(sumOf(cur));
+  $("nameLbl").textContent = t.name; $("noteLbl").textContent = t.note; $("note").placeholder = t.notePh;
+  $("send").hidden = !hasWa; $("sendLbl").textContent = t.send;
+  $("taken").hidden = hasWa; $("taken").textContent = t.taken;          // no WhatsApp number → waiter button instead
+  $("markSent").hidden = !hasWa; $("markSent").textContent = t.markSent;
+  // Earlier rounds, each dish with "Add again"
+  $("roundsSec").hidden = !S.rounds.length;
+  $("alreadyLbl").textContent = t.already;
+  $("rounds").innerHTML = S.rounds.map((r, idx) => `<div class="round"><h5>${t.roundAt(idx + 1, timeOf(r.at))}</h5>` +
+    linesOf(r.items).map(([i, n]) => `<div class="oline"><span>${n} × ${nameOf(i)} <span class="p">${rupee(n * i.price)}</span></span>` +
+      (i.available ? `<button class="again" data-p="${i.id}">${t.again}</button>` : `<span class="na">${t.na}</span>`) + `</div>`).join("") +
+    `</div>`).join("");
+  // Totals
+  $("soFarLbl").textContent = t.soFar; $("soFar").textContent = rupee(sumOf(sentLines()) + sumOf(cur));
+  $("estimate").textContent = t.estimate;
+  // Bill + close
+  $("bill").hidden = !(hasWa && S.rounds.length); $("billLbl").textContent = t.bill;
+  $("clear").hidden = !cur.length; $("clear").textContent = t.clear; $("close").textContent = t.back;
+  $("closeTable").textContent = t.closeTable;
+}
+
+// ---------- WhatsApp ----------
+function openWhatsApp(msg){
+  const url = "https://wa.me/" + waNumber() + "?text=" + encodeURIComponent(msg);
+  const w = window.open(url, "_blank");
+  if (!w) location.href = url;              // pop-up blocked → open WhatsApp in this tab instead
+}
+// First line of every message, e.g. "*Kesar Rasoi – Table 7*"
+const head = () => table ? "*" + M.name + " – Table " + table + "*" : "*" + M.name + "*\nTable: not specified";
+
+// Send only the NEW items. They move into a round after the customer says "Yes, sent".
+$("send").addEventListener("click", () => {
+  const cur = linesOf(S.current);
+  if (!M || !cur.length) return;
+  const n = S.rounds.length + 1, note = $("note").value.trim();
+  const msg = [
+    head(),
+    "Order (Round " + n + " – " + (n === 1 ? "new order" : "additional order") + ")",
+    S.name ? "Name: " + S.name : null,
+    "Time: " + timeOf(now()),
+    "",
+    ...cur.map(([i, k]) => k + " × " + i.en + " – " + rupee(k * i.price)),      // English names for the staff
+    "",
+    "*Subtotal: " + rupee(sumOf(cur)) + "* (" + countOf(cur) + (countOf(cur) === 1 ? " item)" : " items)"),
+    n > 1 ? "Table total so far: " + rupee(sumOf(sentLines()) + sumOf(cur)) : null,
+    note ? "\nNote: " + note : null
+  ].filter(x => x !== null).join("\n");
+  // Remember exactly what was in this message, in case more dishes get added before they confirm
+  S.pending = { type: "order", at: now(), items: { ...S.current } }; save(); renderSheet();
+  openWhatsApp(msg);
+});
+
+$("bill").addEventListener("click", () => {
+  const r = S.rounds.length;
+  const msg = [head(), "Please bring the bill.", "Orders sent: " + r + (r === 1 ? " round" : " rounds"), "Estimated total: " + rupee(sumOf(sentLines()))].join("\n");
+  S.pending = { type: "bill", at: now() }; save(); renderSheet();
+  openWhatsApp(msg);
+});
+
+// Move items into a new round (after WhatsApp was sent, or the waiter took the order)
+function moveToRound(items, at){
+  if (!Object.keys(items).length) return;
+  S.rounds.push({ at, items: { ...items } });
+  for (const k in items) { S.current[k] = (S.current[k] || 0) - items[k]; if (S.current[k] <= 0) delete S.current[k]; }
+  $("note").value = "";
+  $("sheet").classList.remove("show");
+  toast(T[lang].sentToast);
+}
+
+// The customer answered "Yes" / "No" about the last WhatsApp message
+function answerPending(yes){
+  const p = S.pending; S.pending = null;
+  if (yes && p && p.type === "bill") return closeTable();
+  if (yes && p) moveToRound(p.items || {}, p.at);
+  save(); render();
+}
+
+// ---------- Coming back from WhatsApp ----------
+function onReturn(){
+  if (!M || document.visibilityState !== "visible") return;
+  // Phone left open for hours → start fresh
+  if (expired(S)) { S = newSession(); store(); $("modal").hidden = true; render(); return; }
+  if (!S.pending || !$("modal").hidden || !$("thanks").hidden) return;
+  if (now() - S.pending.at < 1000) return;     // we only just left for WhatsApp
+  const t = T[lang], bill = S.pending.type === "bill";
+  showModal(bill ? t.askBill : t.askOrder, bill ? t.askBillText : t.askOrderText,
+            bill ? t.yes : t.yesSent, bill ? t.no : t.notSent,
+            () => answerPending(true), () => answerPending(false));
+}
+document.addEventListener("visibilitychange", onReturn);
+window.addEventListener("focus", onReturn);
+window.addEventListener("pageshow", onReturn);
+
+// ---------- Pop-up dialog ----------
+let onYes = null, onNo = null;
+function showModal(title, text, yesLbl, noLbl, yesFn, noFn, danger){
+  $("mTitle").textContent = title; $("mText").textContent = text;
+  $("mYes").textContent = yesLbl; $("mNo").textContent = noLbl;
+  $("mYes").className = danger ? "danger" : "solid";
+  onYes = yesFn; onNo = noFn;
+  $("modal").hidden = false; $("mYes").focus();
+}
+$("mYes").addEventListener("click", () => { $("modal").hidden = true; if (onYes) onYes(); });
+$("mNo").addEventListener("click", () => { $("modal").hidden = true; if (onNo) onNo(); });
+
+// ---------- Closing the table ----------
+function closeTable(){
+  const name = M.name;
+  try { localStorage.removeItem(sessionKey); } catch (e) {}
+  S = newSession();
+  $("note").value = ""; $("cname").value = "";
+  $("sheet").classList.remove("show"); $("modal").hidden = true;
+  $("thanksTitle").textContent = T[lang].thanks(name);
+  $("thanksText").textContent = T[lang].thanksText;
+  $("startNew").textContent = T[lang].startNew;
+  $("thanks").hidden = false;
+  render();
+}
+$("closeTable").addEventListener("click", () => {
+  const t = T[lang];
+  showModal(t.closeQ, t.closeText, t.closeYes, t.cancel, closeTable, null, true);
+});
+$("startNew").addEventListener("click", () => { $("thanks").hidden = true; window.scrollTo(0, 0); });
+
+// ---------- Toast message ----------
+let toastTimer = null;
+function toast(msg){
+  $("toast").textContent = msg; $("toast").hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; }, 4000);
+}
+
+// ---------- Buttons ----------
 document.addEventListener("click", e => {
   if (!M) return;
   const p = e.target.closest("[data-p]"), m = e.target.closest("[data-m]"), c = e.target.closest("[data-c]");
-  if (p) { list[p.dataset.p] = (list[p.dataset.p] || 0) + 1; save(); render(); }
-  if (m) { list[m.dataset.m] = Math.max(0, (list[m.dataset.m] || 0) - 1); if (!list[m.dataset.m]) delete list[m.dataset.m]; save(); render(); }
+  if (p) { const i = find(p.dataset.p); if (i && i.available) { S.current[i.id] = (S.current[i.id] || 0) + 1; save(); render(); } }
+  if (m) { const k = m.dataset.m; S.current[k] = Math.max(0, (S.current[k] || 0) - 1); if (!S.current[k]) delete S.current[k]; save(); render(); }
   if (c) { document.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === c));
            const el = $("s-" + c.dataset.c); if (el) el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
 });
 $("q").addEventListener("input", e => { q = e.target.value; if (M) render(); });
 $("veg").addEventListener("click", () => { vegOnly = !vegOnly; $("veg").setAttribute("aria-pressed", vegOnly); if (M) render(); });
 $("lang").addEventListener("click", () => { lang = lang === "en" ? "hi" : "en"; if (M) render(); });
-$("openList").addEventListener("click", () => $("sheet").classList.add("show"));
+$("openList").addEventListener("click", () => { renderSheet(); $("sheet").classList.add("show"); });
 $("close").addEventListener("click", () => $("sheet").classList.remove("show"));
 $("sheet").addEventListener("click", e => { if (e.target === $("sheet")) $("sheet").classList.remove("show"); });
-// ---------- Send the order to the owner on WhatsApp ----------
-$("send").addEventListener("click", () => {
-  if (!M) return;
-  const items = Object.keys(list).map(k => [M.items.find(i => String(i.id) === String(k)), list[k]]).filter(([i, n]) => i && n > 0);
-  if (!items.length) return;
-  const total = items.reduce((s, [i, n]) => s + n * i.price, 0);
-  const count = items.reduce((s, [, n]) => s + n, 0);
-  const name = $("cname").value.trim(), note = $("note").value.trim();
-  const now = new Date().toLocaleString("en-IN", {day: "numeric", month: "short", hour: "numeric", minute: "2-digit"});
-  const msg = [
-    "*New order – " + M.name + "*",
-    table ? "*Table:* " + table : "*Table:* not given",
-    name ? "*Name:* " + name : null,
-    "*Time:* " + now,
-    "",
-    ...items.map(([i, n]) => n + " × " + i.en + (i.veg ? " (veg)" : " (non-veg)") + " – " + rupee(n * i.price)),
-    "",
-    "------------------------------",
-    "*Total items:* " + count,
-    "*Total price: " + rupee(total) + "*",
-    note ? "\n*Note:* " + note : null,
-    "\n_Sent from MenuScan_"
-  ].filter(x => x !== null).join("\n");
-  window.open("https://wa.me/" + waNumber() + "?text=" + encodeURIComponent(msg), "_blank");
-});
-$("clear").addEventListener("click", () => { list = {}; save(); $("sheet").classList.remove("show"); render(); });
+$("cname").addEventListener("input", e => { S.name = e.target.value.trim(); save(); });
+$("pendYes").addEventListener("click", () => answerPending(true));
+$("pendNo").addEventListener("click", () => answerPending(false));
+$("taken").addEventListener("click", () => { moveToRound({ ...S.current }, now()); save(); render(); });
+$("markSent").addEventListener("click", () => { moveToRound({ ...S.current }, now()); save(); render(); });
+$("clear").addEventListener("click", () => { S.current = {}; save(); if (!S.rounds.length) $("sheet").classList.remove("show"); render(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { $("modal").hidden = true; $("sheet").classList.remove("show"); } });
 </script>
 </body>
 </html>
