@@ -1,0 +1,35 @@
+Photo credits for the Kesar Rasoi demo menu
+All photos are from Wikimedia Commons, used under the licence shown.
+Changes: cropped (square, or 16:9 for the cover), resized and converted to WebP.
+Under CC BY-SA, these edited versions are shared under the same licence.
+A real restaurant should replace these with its OWN photos.
+
+cover.webp
+  Author:  Vyacheslav Argenberg
+  Licence: CC BY 4.0  https://creativecommons.org/licenses/by/4.0
+  Source:  https://commons.wikimedia.org/wiki/File:Darjeeling,_India,_Indian_Thali_meal.jpg
+
+paneer-tikka.webp
+  Author:  Craversbooty
+  Licence: CC BY-SA 4.0  https://creativecommons.org/licenses/by-sa/4.0
+  Source:  https://commons.wikimedia.org/wiki/File:Paneer_tikka_.jpg
+
+misal-pav.webp
+  Author:  Arundhati1312
+  Licence: CC BY-SA 4.0  https://creativecommons.org/licenses/by-sa/4.0
+  Source:  https://commons.wikimedia.org/wiki/File:Misal_Pav_in_India.JPG
+
+dal-tadka.webp
+  Author:  AugustineKajur
+  Licence: CC BY-SA 4.0  https://creativecommons.org/licenses/by-sa/4.0
+  Source:  https://commons.wikimedia.org/wiki/File:Dal_Tadka-Delhi.jpg
+
+butter-naan.webp
+  Author:  Ganesh Mohan T
+  Licence: CC BY-SA 4.0  https://creativecommons.org/licenses/by-sa/4.0
+  Source:  https://commons.wikimedia.org/wiki/File:Butter_Naan_2.jpg
+
+gulab-jamun.webp
+  Author:  Suyash.dwivedi
+  Licence: CC BY-SA 4.0  https://creativecommons.org/licenses/by-sa/4.0
+  Source:  https://commons.wikimedia.org/wiki/File:Two_Gulab_Jamun_in_a_plate_01.jpg

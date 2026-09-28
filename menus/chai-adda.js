@@ -1,6 +1,8 @@
 // Menu for: Chai Adda  (second example restaurant - copy this file to add a new one)
 window.MENU = {
   name: "Chai Adda",
+  // Optional colours and heading font for this restaurant (see menus/_template.js)
+  theme: { primary: "#7A3E1D", accent: "#E8923A", font: "Baloo 2" },
   tagline: { en: "Chai, snacks and good conversations", hi: "चाय, नाश्ता और अच्छी बातें" },
   categories: [
     { id: "chai",   en: "Chai & coffee", hi: "चाय और कॉफ़ी" },
