@@ -2,7 +2,8 @@
 
 One codebase that serves a digital menu for any number of restaurants.
 Customers scan a QR code on their table, the menu opens on their phone
-(no app needed), they build a list, and show it to the waiter.
+(no app needed), they build their order and send it to the restaurant
+on WhatsApp with one tap (table number, items, total and notes included).
 
 ## What's inside
 
@@ -56,6 +57,9 @@ Test it: open `https://YOUR-SITE/?r=kesar-rasoi&table=3` on your phone.
    - `tag: "chef"` or `tag: "spicy"` adds a small label (optional)
    - Every dish needs a unique `id` number and a `cat` matching a category `id`
    - The Hindi fields (`hi`) are optional; English shows if they are empty
+   - `whatsapp: "91XXXXXXXXXX"` sets the number that receives orders (digits
+     only, with country code). If left out, orders go to the default number
+     set in `index.html` (`DEFAULT_WA`).
 3. Upload the updated folder to your host again.
 4. Check it: `https://YOUR-SITE/?r=shree-datta-hotel`
 

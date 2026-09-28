@@ -62,7 +62,7 @@ section h2{font-family:"Yatra One","Mukta",serif;font-weight:400;font-size:1.5re
 .off{opacity:.5}
 .off .right .note{font-size:.85rem;color:var(--nonveg)}
 .empty{padding:40px 0;color:var(--muted);text-align:center}
-button:focus-visible,input:focus-visible{outline:3px solid var(--turmeric);outline-offset:2px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--turmeric);outline-offset:2px}
 .bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--leaf);color:var(--bg);display:none;z-index:10}
 .bar.show{display:block}
 .bar button{width:100%;max-width:608px;margin:0 auto;display:flex;justify-content:space-between;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer}
@@ -80,6 +80,17 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--turmeric);outli
 .ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
 .solid{background:var(--leaf);color:var(--bg);border:0}
 footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:36px}
+.wa{background:#25D366;color:#fff;border:0;display:flex;align-items:center;justify-content:center;gap:8px}
+.wa svg{width:22px;height:22px;flex:none}
+.wa:disabled{opacity:.5;cursor:not-allowed}
+.send{width:100%;border-radius:12px;padding:14px;font:inherit;font-weight:700;font-size:1.1rem;cursor:pointer;margin:8px 0 10px}
+.field{display:block;font-size:.9rem;color:var(--muted);margin:10px 0 4px}
+.panel input,.panel textarea{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit;font-size:1rem;resize:vertical}
+.panel textarea{min-height:60px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:15;text-decoration:none;transition:bottom .2s ease}
+.fab svg{width:30px;height:30px}
+body.has-bar .fab{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+body.has-bar .wrap{padding-bottom:160px}
 </style>
 </head>
 <body>
@@ -113,6 +124,8 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:36px}
   <footer id="foot"></footer>
 </div>
 
+<a class="fab wa" id="fab" href="https://wa.me/918459569923" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.3.6 4.5 1.8 6.5L3 29l6.9-1.8c1.9 1 4 1.6 6.1 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.1 1.1-4-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 9.9 10.1 5.2 16 5.2s10.7 4.7 10.7 10.6S21.9 26.5 16 26.5zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.7 1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg></a>
+
 <div class="bar" id="bar"><button id="openList"><span id="barCount"></span><span id="barTotal"></span></button></div>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -121,6 +134,11 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:36px}
     <p class="hint" id="sheetHint"></p>
     <div id="lines"></div>
     <div class="total"><span id="totLbl"></span><span id="tot"></span></div>
+    <label class="field" for="cname" id="nameLbl"></label>
+    <input id="cname" type="text" autocomplete="name" maxlength="40">
+    <label class="field" for="note" id="noteLbl"></label>
+    <textarea id="note" maxlength="200"></textarea>
+    <button class="send wa" id="send"><svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.3.6 4.5 1.8 6.5L3 29l6.9-1.8c1.9 1 4 1.6 6.1 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.1 1.1-4-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 9.9 10.1 5.2 16 5.2s10.7 4.7 10.7 10.6S21.9 26.5 16 26.5zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.7 1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg><span id="sendLbl"></span></button>
     <div class="actions">
       <button class="ghost" id="clear"></button>
       <button class="solid" id="close"></button>
@@ -132,11 +150,13 @@ footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:36px}
 // ---------- Interface text (English / Hindi) ----------
 const T = {
   en:{search:"Search dishes",veg:"Veg only",add:"Add",na:"Not available today",
-      items:n=>n+(n===1?" item":" items"),show:"Show to waiter",title:"My order list",hint:"Show this screen to your waiter to place the order.",
+      items:n=>n+(n===1?" item":" items"),show:"Review & send order",title:"Your order",hint:"Check your items, then send the order to the restaurant on WhatsApp.",
+      send:"Send order on WhatsApp",name:"Your name (optional)",note:"Note for the kitchen (optional)",notePh:"e.g. less spicy, no onion",
       total:"Total",clear:"Clear list",back:"Back to menu",empty:"No dishes match your search.",foot:"Prices include GST · Menu by MenuScan",table:"Table",spicy:"Spicy",chef:"Chef's pick",lang:"हिंदी",
       notfound:"Menu not found. Please ask the staff for help."},
   hi:{search:"व्यंजन खोजें",veg:"केवल शाकाहारी",add:"जोड़ें",na:"आज उपलब्ध नहीं",
-      items:n=>n+" आइटम",show:"वेटर को दिखाएँ",title:"मेरी ऑर्डर सूची",hint:"ऑर्डर देने के लिए यह स्क्रीन वेटर को दिखाएँ।",
+      items:n=>n+" आइटम",show:"देखें और ऑर्डर भेजें",title:"आपका ऑर्डर",hint:"अपने आइटम जाँचें, फिर WhatsApp पर रेस्टोरेंट को ऑर्डर भेजें।",
+      send:"WhatsApp पर ऑर्डर भेजें",name:"आपका नाम (वैकल्पिक)",note:"किचन के लिए नोट (वैकल्पिक)",notePh:"जैसे कम तीखा, बिना प्याज़",
       total:"कुल",clear:"सूची साफ़ करें",back:"मेनू पर वापस",empty:"कोई व्यंजन नहीं मिला।",foot:"कीमतों में GST शामिल · MenuScan",table:"टेबल",spicy:"तीखा",chef:"शेफ़ की पसंद",lang:"English",
       notfound:"मेनू नहीं मिला। कृपया स्टाफ़ से संपर्क करें।"}
 };
@@ -148,6 +168,10 @@ const table = (params.get("table") || "").replace(/[^A-Za-z0-9-]/g, "");
 const storeKey = "menuList:" + slug;
 const $ = id => document.getElementById(id);
 const rupee = n => "₹" + n.toLocaleString("en-IN");
+// Default WhatsApp number that receives orders. A restaurant can override it
+// with  whatsapp: "91XXXXXXXXXX"  in its menus/<id>.js file (digits only, with country code).
+const DEFAULT_WA = "918459569923";
+const waNumber = () => String((M && M.whatsapp) || DEFAULT_WA).replace(/\D/g, "");
 
 let M = null, lang = "en", vegOnly = false, q = "", list = {};
 try { list = JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; } catch (e) { list = {}; }
@@ -156,7 +180,7 @@ const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(list));
 // ---------- Load this restaurant's menu file ----------
 const s = document.createElement("script");
 s.src = "menus/" + slug + ".js";
-s.onload = () => { M = window.MENU; document.title = M.name + " – Menu"; render(); };
+s.onload = () => { M = window.MENU; document.title = M.name + " – Menu"; $("fab").href = "https://wa.me/" + waNumber(); render(); };
 s.onerror = () => { $("brand").textContent = "MenuScan"; $("menu").innerHTML = '<p class="empty">' + T.en.notfound + "<br>" + T.hi.notfound + "</p>"; };
 document.head.appendChild(s);
 
@@ -171,6 +195,7 @@ function render(){
   $("tbl").style.display = table ? "" : "none";
   $("sheetTitle").textContent = t.title; $("sheetHint").textContent = t.hint; $("totLbl").textContent = t.total;
   $("clear").textContent = t.clear; $("close").textContent = t.back;
+  $("nameLbl").textContent = t.name; $("noteLbl").textContent = t.note; $("note").placeholder = t.notePh; $("sendLbl").textContent = t.send;
 
   const ql = q.trim().toLowerCase();
   const shown = M.items.filter(i => (!vegOnly || i.veg) && (!ql || i.en.toLowerCase().includes(ql) || (i.hi||"").includes(q.trim())));
@@ -196,6 +221,8 @@ function render(){
   const count = ids.reduce((s, k) => s + list[k], 0);
   const total = ids.reduce((s, k) => s + list[k] * find(k).price, 0);
   $("bar").classList.toggle("show", count > 0);
+  document.body.classList.toggle("has-bar", count > 0);
+  $("send").disabled = count === 0;
   $("barCount").textContent = t.items(count) + " · " + rupee(total);
   $("barTotal").textContent = t.show;
   $("lines").innerHTML = ids.map(k => { const i = find(k); return `<div class="line"><span>${list[k]} × ${lang==="en"?i.en:(i.hi||i.en)}</span><span>${rupee(list[k]*i.price)}</span></div>`; }).join("");
@@ -216,6 +243,28 @@ $("lang").addEventListener("click", () => { lang = lang === "en" ? "hi" : "en"; 
 $("openList").addEventListener("click", () => $("sheet").classList.add("show"));
 $("close").addEventListener("click", () => $("sheet").classList.remove("show"));
 $("sheet").addEventListener("click", e => { if (e.target === $("sheet")) $("sheet").classList.remove("show"); });
+// ---------- Send the order to the owner on WhatsApp ----------
+$("send").addEventListener("click", () => {
+  if (!M) return;
+  const items = Object.keys(list).map(k => [M.items.find(i => String(i.id) === String(k)), list[k]]).filter(([i, n]) => i && n > 0);
+  if (!items.length) return;
+  const total = items.reduce((s, [i, n]) => s + n * i.price, 0);
+  const name = $("cname").value.trim(), note = $("note").value.trim();
+  const now = new Date().toLocaleString("en-IN", {day: "numeric", month: "short", hour: "numeric", minute: "2-digit"});
+  const msg = [
+    "*New order – " + M.name + "*",
+    table ? "*Table:* " + table : "*Table:* not given",
+    name ? "*Name:* " + name : null,
+    "*Time:* " + now,
+    "",
+    ...items.map(([i, n]) => n + " × " + i.en + (i.veg ? " (veg)" : " (non-veg)") + " – " + rupee(n * i.price)),
+    "",
+    "*Total: " + rupee(total) + "*",
+    note ? "\n*Note:* " + note : null,
+    "\n_Sent from MenuScan_"
+  ].filter(x => x !== null).join("\n");
+  window.open("https://wa.me/" + waNumber() + "?text=" + encodeURIComponent(msg), "_blank");
+});
 $("clear").addEventListener("click", () => { list = {}; save(); $("sheet").classList.remove("show"); render(); });
 </script>
 </body>
