@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MenuScan – QR generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Mukta:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#F6F7F1;--surface:#fff;--ink:#1D2B22;--muted:#5E6B62;--line:#DDE3DA;--leaf:#2F5D3A;--turmeric:#E3A21A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Mukta",system-ui,sans-serif;font-size:16px}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 60px}
+h1{font-family:"Yatra One",serif;font-weight:400;color:var(--leaf);font-size:2.2rem;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 20px;max-width:65ch}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+label{display:flex;flex-direction:column;gap:4px;font-weight:500;font-size:.95rem}
+label small{color:var(--muted);font-weight:400}
+input,select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;color:var(--ink)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;grid-column:1/-1}
+button{font:inherit;font-weight:700;border-radius:10px;padding:10px 18px;cursor:pointer;border:0;background:var(--leaf);color:#fff}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--turmeric);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-top:22px}
+.card{background:#fff;border:2px solid var(--leaf);border-radius:16px;padding:16px;text-align:center;break-inside:avoid;page-break-inside:avoid}
+.card .rname{font-family:"Yatra One",serif;color:var(--leaf);font-size:1.35rem;line-height:1.1}
+.card .scan{margin:4px 0 10px;color:var(--muted)}
+.card .qr{display:flex;justify-content:center}
+.card .qr img,.card .qr canvas{width:170px;height:170px}
+.card .tno{margin-top:10px;background:var(--turmeric);display:inline-block;border-radius:999px;padding:2px 14px;font-weight:700}
+.card .link{font-size:.7rem;color:var(--muted);word-break:break-all;margin-top:8px}
+.card .dl{margin-top:8px;padding:6px 12px;font-size:.85rem}
+@media print{
+  body{background:#fff}
+  form,.lead,h1,.dl,.link,.noprint{display:none!important}
+  .wrap{padding:0}
+  .grid{grid-template-columns:repeat(3,1fr);gap:12px;margin:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>QR generator</h1>
+  <p class="lead">Make a QR code for every table of a restaurant. Each code opens that restaurant's menu with the table number shown, so the waiter knows where the order came from.</p>
+
+  <form id="f">
+    <label>Website address
+      <input id="base" required placeholder="https://yourname.github.io/menuscan/">
+      <small>Where you hosted the codebase (see README)</small>
+    </label>
+    <label>Restaurant ID
+      <input id="slug" required value="kesar-rasoi" pattern="[a-z0-9-]+">
+      <small>Must match the file name in menus/ (without .js)</small>
+    </label>
+    <label>Name on the card
+      <input id="rname" required value="Kesar Rasoi">
+    </label>
+    <label>Number of tables
+      <input id="tables" type="number" min="0" max="200" value="10">
+      <small>Use 0 for a single QR with no table number</small>
+    </label>
+    <div class="btns">
+      <button type="submit">Generate QR codes</button>
+      <button type="button" class="ghost" id="print">Print all</button>
+    </div>
+  </form>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function buildUrl(base, slug, table){
+  let b = base.trim();
+  if (!/^https?:\/\//i.test(b)) b = "https://" + b;
+  if (!b.endsWith("/") && !b.endsWith(".html")) b += "/";
+  const u = new URL(b);
+  u.searchParams.set("r", slug);
+  if (table) u.searchParams.set("table", table);
+  return u.toString();
+}
+
+function card(name, table, url){
+  const el = document.createElement("div");
+  el.className = "card";
+  el.innerHTML = `<div class="rname"></div><div class="scan">Scan to see the menu</div>
+    <div class="qr"></div>${table ? `<div class="tno">Table ${table}</div>` : ""}
+    <div class="link"></div><button class="dl ghost" type="button">Download PNG</button>`;
+  el.querySelector(".rname").textContent = name;
+  el.querySelector(".link").textContent = url;
+  const box = el.querySelector(".qr");
+  new QRCode(box, { text: url, width: 512, height: 512, correctLevel: QRCode.CorrectLevel.M });
+  el.querySelector(".dl").onclick = () => {
+    const c = box.querySelector("canvas");
+    const a = document.createElement("a");
+    a.href = c.toDataURL("image/png");
+    a.download = `${$("slug").value}-${table ? "table-" + table : "menu"}.png`;
+    a.click();
+  };
+  return el;
+}
+
+$("f").addEventListener("submit", e => {
+  e.preventDefault();
+  if (typeof QRCode === "undefined") { alert("QR library didn't load. Check your internet connection and reload."); return; }
+  const grid = $("grid"); grid.innerHTML = "";
+  const n = Math.max(0, Math.min(200, parseInt($("tables").value || "0", 10)));
+  const slug = $("slug").value.trim().toLowerCase();
+  const name = $("rname").value.trim();
+  const base = $("base").value;
+  if (n === 0) grid.appendChild(card(name, "", buildUrl(base, slug, "")));
+  for (let t = 1; t <= n; t++) grid.appendChild(card(name, String(t), buildUrl(base, slug, t)));
+});
+$("print").onclick = () => window.print();
+</script>
+</body>
+</html>
